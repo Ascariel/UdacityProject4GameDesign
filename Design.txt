@@ -1,0 +1,24 @@
+Design Thoughts:
+
+I wanted to create a simple Tic Tac Toe game that could be played by 2 human players. The idea was to keep it simple but functional. One of the first design issues I was presented with was to decide how to model the visual representation of the game, AKA the board '#' into something that could be stored and read in a database. To acomplish this I decided to use a coordinate system.
+
+This way, a move inside de 3x3 grid would be a pair of coordinates such as [0,1], [2,0] etc, ranging in values from 0 to 2. This way, I could create Move objects in the database that would know which position they belong to in the board, and which game and user they are related to.
+
+When the game starts, all 9 possible moves are created in a default state, meaning they just belong to the game within they where created, but havent been assigned to any user yet.
+
+As users make moves, the Move object matching the desired coordinate is found and updated to belong to that. This way moves from an available pool start being distributed between players, in an alternate way, changing their ownership and availability
+
+From a design pont of view, it was hard to keep track of all the possible scenarios that could occur in this kind of game, and be prepared for all of them. From simple things like recieving incorrect game ids, wrong user names, invalid coordinates etc to more complex ones, like making sure a player didnt play twice in a row, or being able to constantly check the game state, to avoid the game from running when it should have stopped or vice versa.
+
+The DB structure is quite simple, a Game has 2 Users, and 9 Moves. As the game progresses the users claim those moves one by one until a winning condition is met, or there are no more moves available.
+
+A user can create and participate in as many game's as they want, as long as a game has 2 different users in it. Deleting a game is just a matter of destroying the Game object and all its related moves. This ones are recreated independently for each game, so they wont conflict between one game and another.
+
+Most of the API endpoints return clear message about what happened, so its easy to know whats going on after each request
+
+In regards to the initial skeleton project, a few changes were needed to accomodate the new requirements. From the creation of the Move model, which I already mentioned, I also needed to create a score keeping stat, to be able to rank users depending on thei performance. I came up with a simple solution which is implementing the "game_won" attribute to the User model. This way, everytime a game is finished, the winning gets their score updated, increasing it by 1. With that in mind, its easy to sort players through a rank system, and keep track who's doing best.
+
+In regards to how the game works, I added things like, availability to moves, to avoid them overlapping, a game state to the Game model to monitor when the games is active and when its finished, last user played attribute, to avoid users cheating by playing twice. For simplicity, I added both player_ids to the game model, that way I can easily identify the current players for any game.
+
+There were a lot of issues popping all the time, but with patience, I was able to solve them one by one til it finally worked.
+
