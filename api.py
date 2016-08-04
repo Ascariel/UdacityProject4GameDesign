@@ -15,7 +15,7 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
-from models import User, Game, Move, GameForm, GameForms, UserForm, UserForms, GameHistory,GameHistoryForms
+from models import User, Game, Move, GameForm, GameForms, UserForm, UserForms, GameHistory, GameHistoryForm, GameHistoryForms
 from models import StringMessage, GameForm
 from utils import get_by_urlsafe
 
@@ -42,7 +42,7 @@ MAKE_NEXT_MOVE_REQUEST = endpoints.ResourceContainer(
 
 MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
-@endpoints.api(name='guess_a_number', version='v1')
+@endpoints.api(name='tic_tac_toe', version='v1')
 class GuessANumberApi(remote.Service):
     """Game API"""
 
@@ -103,7 +103,7 @@ class GuessANumberApi(remote.Service):
 
 
     @endpoints.method(request_message = GAME_ID, response_message = StringMessage,
-                      path = "cancel_game", name = "cancel_game", http_method = "POST")
+                      path = "cancel_game", name = "cancel_game", http_method = "DELETE")
     def cancel_game(self, request):
       """ Delete an unfinished game """
       game_id = request.game_id
@@ -134,13 +134,12 @@ class GuessANumberApi(remote.Service):
     def getUserGames(self, request):
 
       """ Returns all active games for a given user """
-      games = Game.query(ndb.AND(ndb.OR(Game.player1 == request.user_id, Game.player2 == request.user_id ), Game.finished == False)).fetch()
-      print("game is")
-      print(games[0])
-
-      print("game to form is")
-      print(games[0].to_form())      
+      games = Game.query(ndb.AND(ndb.OR(Game.player1 == request.user_id, Game.player2 == request.user_id ), Game.finished == False)).fetch()  
       game_forms = GameForms(games = [ game.to_form() for game in games ])
+
+      if len(games) == 0:
+        game_forms = [GameForm(player1="Invalid User ID, No Games To Retrieve", player2="Invalid User ID, No Games To Retrieve", game_id="Invalid User ID, No Games To Retrieve")]
+        return GameForms(games=game_forms)
 
       for i in game_forms.games:
         print(i)
@@ -156,6 +155,10 @@ class GuessANumberApi(remote.Service):
       game_history = GameHistory.query(GameHistory.game_id == request.game_id, GameHistory.user_id == request.user_id).fetch()   
       game_history_forms = GameHistoryForms(moves = [ move.to_form() for move in game_history ])
 
+      if len(game_history) == 0:
+        game_history_forms = [GameHistoryForm(user_id="There's No Games For Selected User ID")]
+        return GameHistoryForms(moves=game_history_forms)
+
       return game_history_forms 
 
     @endpoints.method(request_message = message_types.VoidMessage, response_message = UserForms,
@@ -165,6 +168,10 @@ class GuessANumberApi(remote.Service):
 
       users = User.query().order(-User.games_won).fetch()   
       user_forms = UserForms(users = [ user.to_form() for user in users ])
+
+      if len(users) == 0:
+        user_forms = [UserForm(name="There's No Users To Be Ranked Yet", user_id="There's No Users To Be Ranked Yet")]
+        return UserForms(users=user_forms)
 
       for i in user_forms.users:
         print(i)
@@ -187,7 +194,7 @@ class GuessANumberApi(remote.Service):
       return StringMessage(message = "User Created with ID: " + request.user_id)
 
     @endpoints.method(request_message= MAKE_NEXT_MOVE_REQUEST, response_message = StringMessage,
-                      name = "make_move", path="make_move", http_method="POST" )
+                      name = "make_move", path="make_move", http_method="PUT" )
     def makeMove(self, request):
       """ Asigns specific move to a user for a specific game_id, as long as its available
       It also checks if the move is valid, returning the appropiate message for each situation. It 
