@@ -160,7 +160,7 @@ class GuessANumberApi(remote.Service):
         return GameHistoryForms(moves=game_history_forms)
 
       return game_history_forms 
-
+      
     @endpoints.method(request_message = message_types.VoidMessage, response_message = UserForms,
                       path = "get_user_rankings", name = "get_user_rankings", http_method = "GET")
     def getUserRankings(self, request):
@@ -172,7 +172,7 @@ class GuessANumberApi(remote.Service):
       if len(users) == 0:
         user_forms = [UserForm(name="There's No Users To Be Ranked Yet", user_id="There's No Users To Be Ranked Yet")]
         return UserForms(users=user_forms)
-
+        
       for i in user_forms.users:
         print(i)
         print(i.user_id)
