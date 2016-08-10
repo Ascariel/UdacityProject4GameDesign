@@ -56,7 +56,7 @@ class Game(ndb.Model):
 		game_id = ndb.StringProperty(required=True)
 		winner_id = ndb.StringProperty()
 		last_play_user_id = ndb.StringProperty()
-		finished = ndb.BooleanProperty(default=false)		
+		finished = ndb.BooleanProperty(default=False)		
 		state = ndb.StringProperty()
 
 		def update_scores(self):
