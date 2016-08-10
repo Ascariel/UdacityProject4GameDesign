@@ -21,6 +21,11 @@ Short step by step explanation:
 
 4. When all 9 squares are full, the game is over. If no player has 3 marks in a row, the game ends in a tie.
 
+5. Scores are kept as the number of games each user has won. Users with higher wins get ranked top.
+
+## Score Keeping
+
+- ** Score keeping is very simple for this game, everytime a user wins, his games_won score increases by one. Unfinished, lost or tied games do not affect this score and are not registered.
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.
@@ -33,9 +38,9 @@ Short step by step explanation:
 
 ##Endpoints Included:
  - **createUser**
-    - Path: 'make_move'
+    - Path: 'create_user'
     - Method: POST
-    - Parameters: MAKE_NEXT_MOVE_REQUEST (email, name, user_id)
+    - Parameters:  (email, name, user_id)
     - Returns: Message confirming creation of the User
     - Description: Creates a new User. user_id provided must be unique. Will 
     return an appropiate message if a User with that user_id already exists.
@@ -50,7 +55,7 @@ Short step by step explanation:
 
 - **cancel_game**
     - Path: 'cancel_game'
-    - Method: POST
+    - Method: DELETE
     - Parameters: game_id 
     - Returns: StringMessage with game deletion success response
     - Description: Attempts to find and completely erase a game for a given game_id. Responds with appropiate success/failure messages
@@ -78,7 +83,7 @@ Short step by step explanation:
 
 - **makeMove**
     - Path: 'make_move'
-    - Method: POST
+    - Method: PUT
     - Parameters: user_id, game_id, x_move, y_move
     - Returns: StringMessage with appropiate success response for submitted move
     - Description: Asigns specific move to a user for a specific game_id, as long as its available
@@ -128,6 +133,3 @@ Short step by step explanation:
     - To display array of UserForm's 
 
 
-## Score Keeping
-
-- ** Score keeping is very simple for this game, everytime a user wins, his games_won score increases by one. Unfinished, lost or tied games do not affect this score and are not registered.

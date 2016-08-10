@@ -56,17 +56,17 @@ class Game(ndb.Model):
 		game_id = ndb.StringProperty(required=True)
 		winner_id = ndb.StringProperty()
 		last_play_user_id = ndb.StringProperty()
-		finished = ndb.BooleanProperty()		
+		finished = ndb.BooleanProperty(default=false)		
 		state = ndb.StringProperty()
 
 		def update_scores(self):
-			if None in [self.player1, self.player2]:
-				return None
+				if None in [self.player1, self.player2]:
+						return None
 
-			player1 = User.query(User.user_id == self.player1)
-			player2 = User.query(User.user_id == self.player2)
+				player1 = User.query(User.user_id == self.player1)
+				player2 = User.query(User.user_id == self.player2)
 
-			return player1.email
+				return player1.email
 
 
 		def finish_game(self, winner_id, game_state):
@@ -75,10 +75,11 @@ class Game(ndb.Model):
 						return self
 
 				if winner_id != False:
-					user = User.query(User.user_id == winner_id).get()
-					if user != None:
-							user.games_won = user.games_won + 1	          
-							self.winner_id = winner_id					
+						user = User.query(User.user_id == winner_id).get()
+						if user != None:
+								user.games_won = user.games_won + 1	          
+								self.winner_id = winner_id	
+								user.put()				
 
 				self.state = game_state
 				self.finished = True
@@ -132,13 +133,13 @@ class GameForms(messages.Message):
 
 
 class UserForm(messages.Message):
-	name = messages.StringField(1)
-	email = messages.StringField(2)
-	user_id = messages.StringField(3, required = True)
-	games_won = messages.IntegerField(4, default = 0)
+		name = messages.StringField(1)
+		email = messages.StringField(2)
+		user_id = messages.StringField(3, required = True)
+		games_won = messages.IntegerField(4, default = 0)
 
 class UserForms(messages.Message):
-	users = messages.MessageField(UserForm, 1, repeated = True)
+		users = messages.MessageField(UserForm, 1, repeated = True)
 
 
 class StringMessage(messages.Message):
